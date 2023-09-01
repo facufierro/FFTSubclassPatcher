@@ -1,0 +1,6 @@
+# .gitignore
+_env
+.vscode
+logs/
+output/
+temp/
