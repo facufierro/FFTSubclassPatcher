@@ -12,7 +12,7 @@ class SettingsManager:
             cls._instance = super(SettingsManager, cls).__new__(cls)
 
             # Initialize directories
-            cls.BASE_DIRECTORY = os.path.dirname(os.path.abspath(__file__))
+            cls.BASE_DIRECTORY = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
             cls.TEMP_DIRECTORY = os.path.join(cls.BASE_DIRECTORY, "temp")
             cls.OUTPUT_DIRECTORY = os.path.join(cls.BASE_DIRECTORY, "output")
 
