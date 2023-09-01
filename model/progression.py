@@ -1,0 +1,54 @@
+# model/progression.py
+from utils.lsx_parser import get_attribute, parse_lsx_file, get_subclasses
+
+
+class Progression:
+    def __init__(self, lsx_file_path=None):
+        if lsx_file_path:
+            self.uuid, self.name, self.table_uuid, self.level, self.progression_type, self.boosts, self.passives, self.selectors, self.subclasses = self.load_from_lsx(lsx_file_path)
+
+    def load_from_lsx(self, lsx_file_path):
+        root = parse_lsx_file(lsx_file_path)
+
+        for prog_node in root.xpath(".//node[@id='Progression']"):
+            attrs = ['UUID', 'Name', 'TableUUID', 'Level', 'ProgressionType', 'Boosts', 'PassivesAdded', 'Selectors']
+
+            uuid, name, table_uuid, level, progression_type, boosts, passives, selectors = [
+                get_attribute(prog_node, attr) or {} for attr in attrs
+            ]
+
+            subclasses = get_subclasses(prog_node) or []
+
+        return uuid, name, table_uuid, level, progression_type, boosts, passives, selectors, subclasses
+
+    def combine(self, other):
+        if self.uuid["value"] == other.uuid["value"]:
+            for subclass in other.subclasses:
+                if subclass not in self.subclasses:
+                    self.subclasses.append(subclass)
+
+    def __str__(self):
+        subclass_nodes = ''
+        for subclass in self.subclasses:
+            subclass_nodes += f'<!-- {subclass["name"]} -->\n'
+            subclass_nodes += f'<node id="SubClass">\n'
+            subclass_nodes += f'  <attribute id="Object" type="guid" value="{subclass["uuid"]}"/>\n'
+            subclass_nodes += '</node>\n'
+
+        return (
+            f'{self.comment}\n'
+            '<node id="Progression">\n'
+            f'  <attribute id="{self.uuid["id"]}" type="{self.uuid["type"]}" value="{self.uuid["value"]}"/>\n'
+            f'  <attribute id="{self.name["id"]}" type="{self.name["type"]}" value="{self.name["value"]}"/>\n'
+            f'  <attribute id="{self.table_uuid["id"]}" type="{self.table_uuid["type"]}" value="{self.table_uuid["value"]}"/>\n'
+            f'  <attribute id="{self.level["id"]}" type="{self.level["type"]}" value="{self.level["value"]}"/>\n'
+            f'  <attribute id="{self.progression_type["id"]}" type="{self.progression_type["type"]}" value="{self.progression_type["value"]}"/>\n'
+            '  <children>\n'
+            '    <node id="SubClasses">\n'
+            '      <children>\n'
+            f'{subclass_nodes}'
+            '      </children>\n'
+            '    </node>\n'
+            '  </children>\n'
+            '</node>'
+        )
