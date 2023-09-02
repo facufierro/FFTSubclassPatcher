@@ -9,6 +9,7 @@ logging.basicConfig(level=logging.INFO)
 
 class Mod:
     def __init__(self, meta_lsx_file_path=None, progressions_lsx_file_path=None):
+        self.progress_callbacks = []
         if meta_lsx_file_path and progressions_lsx_file_path:
             logging.info(f"Initializing Mod with metadata from {meta_lsx_file_path} and progressions from {progressions_lsx_file_path}")
             self.uuid, self.name, self.author, self.folder = self.load_meta_from_lsx(meta_lsx_file_path)
@@ -21,6 +22,13 @@ class Mod:
             self.author = "fierrof"
             self.folder = "FFTSubclassPatch"
             self.progressions = []
+
+    def add_progress_callback(self, callback):
+        self.progress_callbacks.append(callback)
+
+    def notify_progress(self, progress):
+        for callback in self.progress_callbacks:
+            callback(progress)
 
     def load_meta_from_lsx(self, lsx_file_path):
         logging.info(f"Loading metadata from {lsx_file_path}")
@@ -38,11 +46,14 @@ class Mod:
             return
 
         self.progressions = []  # Resetting the list
+        total_nodes = len(root.xpath(".//node[@id='Progression']"))
 
-        for prog_node in root.xpath(".//node[@id='Progression']"):
+        for i, prog_node in enumerate(root.xpath(".//node[@id='Progression']")):
             progression = Progression()
-            progression.load_from_node(prog_node)  # Using the new method
+            progression.load_from_node(prog_node)
             self.progressions.append(progression)
+            progress = (i+1) / total_nodes * 100
+            self.notify_progress(progress)
 
     def meta_string(self) -> str:
         return (
