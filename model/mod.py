@@ -1,24 +1,39 @@
-import logging
-import os
-from lxml import etree
+# model/mod.py
+
 from model.progression import Progression
+from utils.lsx_parser import get_attribute, parse_lsx_file
 
 
 class Mod:
-    def __init__(self, mod_unpacked_folder=None):
-        if mod_unpacked_folder:
-            self.mod_unpacked_folder = mod_unpacked_folder
-            self.folder = os.listdir(os.path.join(Config().TEMP_DIR, self.mod_unpacked_folder, "Mods"))[0]
-            self.uuid, self.name, self.author = self.read_meta()
-            self.progressions = self.read_progressions()
+    def __init__(self, meta_lsx_file_path=None, progressions_lsx_file_path=None):
+        if meta_lsx_file_path and progressions_lsx_file_path:
+            self.uuid, self.name, self.author, self.folder = self.load_meta_from_lsx(meta_lsx_file_path)
+            self.progressions = self.load_progressions_from_lsx(progressions_lsx_file_path)
         else:
+            # Initialize with default values
             self.uuid = "c0d54727-cce1-4da4-b5b7-180590fb2780"
             self.name = "FFTSubclassPatch"
             self.author = "fierrof"
             self.folder = "FFTSubclassPatch"
             self.progressions = []
 
-    def generate_meta(self) -> str:
+    def load_meta_from_lsx(self, lsx_file_path):
+        root = parse_lsx_file(lsx_file_path)
+        for mod_node in root.xpath(".//node[@id='ModuleInfo']"):
+            attrs = ['UUID', 'Name', 'Author', 'Folder']
+            uuid, name, author, folder = [get_attribute(mod_node, attr) for attr in attrs]
+        return uuid, name, author, folder
+
+    def load_progressions_from_lsx(self, lsx_file_path):
+        root = parse_lsx_file(lsx_file_path)
+        self.progressions = []  # Resetting the list
+
+        for prog_node in root.xpath(".//node[@id='Progression']"):
+            progression = Progression()
+            progression.load_from_lsx(prog_node)  # Assuming this version of the function takes an XML node
+            self.progressions.append(progression)
+
+    def meta_string(self) -> str:
         return (
             f'<?xml version="1.0" encoding="UTF-8"?>'
             f'<save>'
@@ -64,7 +79,7 @@ class Mod:
             f'</region>'
             f'</save>')
 
-    def generate_progressions(self, patch) -> str:
+    def progressions_string(self, patch) -> str:
         return (
             '<?xml version="1.0" encoding="UTF-8"?>\n'
             '<save>\n'

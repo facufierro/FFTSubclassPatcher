@@ -1,3 +1,4 @@
+# utils/settings_manager.py
 import os
 import json
 import logging
@@ -15,6 +16,7 @@ class SettingsManager:
             cls.BASE_DIRECTORY = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
             cls.TEMP_DIRECTORY = os.path.join(cls.BASE_DIRECTORY, "temp")
             cls.OUTPUT_DIRECTORY = os.path.join(cls.BASE_DIRECTORY, "output")
+            cls.MODS_DIRECTORY = os.path.join(os.getenv('LOCALAPPDATA'), 'Larian Studios', 'Baldur\'s Gate 3', 'Mods')
 
             try:
                 # Load settings from JSON
@@ -29,6 +31,7 @@ class SettingsManager:
             cls._ensure_directory_exists(cls.TEMP_DIRECTORY)
             cls._ensure_directory_exists(cls.OUTPUT_DIRECTORY)
             cls._ensure_directory_exists(cls.DIVINE_DIRECTORY)
+            cls._ensure_directory_exists(cls.MODS_DIRECTORY)
         return cls._instance
 
     @staticmethod
@@ -71,3 +74,7 @@ class SettingsManager:
     def set_setting(self, key, value):
         self.settings[key] = value
         self.save_settings()
+    # Gets the DIVINE_DIRECTORY from settings.
+
+    def get_divine_directory(self):
+        return self.DIVINE_DIRECTORY
