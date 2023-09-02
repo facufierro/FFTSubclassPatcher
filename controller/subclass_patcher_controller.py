@@ -50,7 +50,6 @@ class SubclassPatcherController:
         # Load all mods from TEMP_DIRECTORY
         return ModManager.get_all_mods_from_files()
 
-
     def create_mod_patch(self, selected_mod_paths: List[str]) -> bool:
         # Create a mod patch using the selected mods
 
@@ -64,8 +63,8 @@ class SubclassPatcherController:
         mods = self.load_all_mods_from_temp_directory()
 
         # Step 3: Process the mods (TODO: Implement this step)
-        for mod in mods:
-            logging.info(f"Processing mod {mod.name}")
+        patch = ModManager.combine_mods(mods)
+        
         # Step 4: Repack the mods (TODO: Implement this step)
 
         # Step 5: Move them to OUTPUT_DIRECTORY (TODO: Implement this step)

@@ -96,3 +96,21 @@ class ModManager:
         except Exception as e:
             logging.error(f"Failed to unpack {mod_path}: {e}")
             return False
+
+    @staticmethod
+    def combine_mods(mods):
+        patch = Mod()
+        for mod in mods:
+            if mod.progressions is not None:  # Check if progressions is None
+                for progression in mod.progressions:
+                    if progression.subclasses:
+                        if progression.uuid["value"] not in [p.uuid["value"] for p in patch.progressions]:
+                            patch.progressions.append(progression)
+                        if progression.uuid["value"] in [p.uuid["value"] for p in patch.progressions]:
+                            for patch_prog in patch.progressions:
+                                if patch_prog.uuid["value"] == progression.uuid["value"]:
+                                    patch_prog.combine(progression)
+                                    logging.debug(f"Created patch: {patch.name}")
+            else:
+                logging.warning(f"No progressions in mod: {mod.name}")
+        return patch
