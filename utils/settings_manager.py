@@ -75,6 +75,3 @@ class SettingsManager:
         self.settings[key] = value
         self.save_settings()
     # Gets the DIVINE_DIRECTORY from settings.
-
-    def get_divine_directory(self):
-        return self.DIVINE_DIRECTORY

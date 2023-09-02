@@ -1,16 +1,21 @@
 # model/mod.py
-
+import logging
 from model.progression import Progression
 from utils.lsx_parser import get_attribute, parse_lsx_file
+
+# Initialize logging
+logging.basicConfig(level=logging.INFO)
 
 
 class Mod:
     def __init__(self, meta_lsx_file_path=None, progressions_lsx_file_path=None):
         if meta_lsx_file_path and progressions_lsx_file_path:
+            logging.info(f"Initializing Mod with metadata from {meta_lsx_file_path} and progressions from {progressions_lsx_file_path}")
             self.uuid, self.name, self.author, self.folder = self.load_meta_from_lsx(meta_lsx_file_path)
             self.progressions = self.load_progressions_from_lsx(progressions_lsx_file_path)
         else:
             # Initialize with default values
+            logging.info("Initializing Mod with default values.")
             self.uuid = "c0d54727-cce1-4da4-b5b7-180590fb2780"
             self.name = "FFTSubclassPatch"
             self.author = "fierrof"
@@ -18,6 +23,7 @@ class Mod:
             self.progressions = []
 
     def load_meta_from_lsx(self, lsx_file_path):
+        logging.info(f"Loading metadata from {lsx_file_path}")
         root = parse_lsx_file(lsx_file_path)
         for mod_node in root.xpath(".//node[@id='ModuleInfo']"):
             attrs = ['UUID', 'Name', 'Author', 'Folder']
@@ -25,12 +31,17 @@ class Mod:
         return uuid, name, author, folder
 
     def load_progressions_from_lsx(self, lsx_file_path):
+        logging.info(f"Loading progressions from {lsx_file_path}")
         root = parse_lsx_file(lsx_file_path)
+        if root is None:
+            logging.error(f"Failed to parse file: {lsx_file_path}")
+            return
+
         self.progressions = []  # Resetting the list
 
         for prog_node in root.xpath(".//node[@id='Progression']"):
             progression = Progression()
-            progression.load_from_lsx(prog_node)  # Assuming this version of the function takes an XML node
+            progression.load_from_node(prog_node)  # Using the new method
             self.progressions.append(progression)
 
     def meta_string(self) -> str:

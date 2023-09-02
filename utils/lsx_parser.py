@@ -1,3 +1,5 @@
+# utils/lsx_parser.py
+import os
 from lxml import etree
 from typing import List, Optional
 import logging
@@ -15,12 +17,17 @@ def get_attribute(node, attr_id, default=None) -> Optional[str]:
     return result[0] if result else default
 
 
-def parse_lsx_file(file_path: str) -> Optional[etree._Element]:
+def parse_lsx_file(file_path):
+    if not os.path.exists(file_path):
+        logging.error(f"File not found: {file_path}")
+        return None
+
     try:
         # Initialize parser and parse the XML
         parser = etree.XMLParser(remove_blank_text=True)
         tree = etree.parse(file_path, parser)
-        return tree.getroot()
+        return tree
+
     except Exception as e:
         logging.error(f"Error in parse_lsx_file: {e}")
         return None

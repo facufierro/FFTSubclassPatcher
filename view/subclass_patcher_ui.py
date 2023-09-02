@@ -2,7 +2,7 @@
 # view/subclass_patcher_ui.py
 from PyQt5.QtCore import QMetaObject, QCoreApplication
 from PyQt5.QtGui import QStandardItemModel, QStandardItem
-from PyQt5.QtWidgets import QFileDialog, QGridLayout, QListView, QLineEdit, QPushButton, QToolButton, QAbstractItemView
+from PyQt5.QtWidgets import QFileDialog, QGridLayout, QListView, QLineEdit, QPushButton, QToolButton, QAbstractItemView, QMessageBox
 import logging  # Import logging for error handling
 from controller.subclass_patcher_controller import SubclassPatcherController  # Import the controller
 
@@ -52,6 +52,9 @@ class SubclassPatcherUI(object):
             self.btnCreatePatch.setObjectName("btnCreatePatch")
             self.gridLayout.addWidget(self.btnCreatePatch, 0, 2, 1, 1)
 
+            # Connect Create Patch button to initiate the mod patching process
+            self.btnCreatePatch.clicked.connect(self.initiate_mod_patching)
+
             # Initialize button for selecting Divine path
             self.btnDivinePath = QToolButton(SubclassPatcherUI)
             self.btnDivinePath.setObjectName("btnDivinePath")
@@ -77,22 +80,50 @@ class SubclassPatcherUI(object):
         self.btnDivinePath.setText(_translate("SubclassPatcherUI", "..."))
 
     def browse_divine_directory(self):
-        # Open a directory browser dialog
+        # Open a file dialog to select divine.exe
         options = QFileDialog.Options()
-        directory = QFileDialog.getExistingDirectory(None, "Select Divine Directory", "", options=options)
+        options |= QFileDialog.ReadOnly
+        file_path, _ = QFileDialog.getOpenFileName(
+            None,
+            "Select divine.exe File",
+            "",
+            "Executable Files (*.exe);;All Files (*)",
+            options=options
+        )
 
-        if directory:  # If a directory is selected
-            self.txtDivinePath.setText(directory)  # Set the directory path in txtDivinePath
-
-            # Use the Controller to save the directory to settings
-            self.controller.save_divine_directory(directory)
+        if file_path:  # If a file is selected
+            # Check if the selected file is actually 'divine.exe'
+            if file_path.lower().endswith('divine.exe'):
+                self.txtDivinePath.setText(file_path)  # Set the file path in txtDivinePath
+                # Use the Controller to save the path to settings
+                self.controller.save_divine_directory(file_path)
+            else:
+                # Show a dialog to inform the user that they didn't select 'divine.exe'
+                QMessageBox.critical(None, 'Invalid File', 'Invalid file selected. Please select divine.exe.')
 
     def update_mod_list(self):
         self.model.clear()
-        mod_list = self.controller.load_all_mods()
+        mod_list = self.controller.load_all_mods_from_mods_directory()
 
         for mod in mod_list:
+            # print(type(mod))  # Print the type of mod to the console for debugging
             item = QStandardItem(mod)
             self.model.appendRow(item)
 
         self.lstMods.setModel(self.model)
+
+    def initiate_mod_patching(self):
+        # Get the selected mod indices first
+        selected_mod_indices = self.get_selected_mod_indices()
+
+        # Use the controller to get the full paths of selected mods
+        selected_mod_paths = self.controller.get_mod_full_paths(selected_mod_indices)
+
+        # Initiate the mod patching process
+        self.controller.create_mod_patch(selected_mod_paths)
+
+    def get_selected_mod_indices(self):
+        # Fetch the selected mod indices from lstMods
+        selected_indexes = self.lstMods.selectionModel().selectedIndexes()
+        selected_mod_indices = [index.row() for index in selected_indexes]
+        return selected_mod_indices
