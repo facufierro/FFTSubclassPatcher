@@ -14,7 +14,7 @@ class Progression:
             self.uuid, self.name, self.table_uuid, self.level, self.progression_type, self.boosts, self.passives, self.selectors, self.subclasses = self.load_from_lsx(lsx_file_path)
 
     def load_from_lsx(self, lsx_file_path):
-        logging.info(f"Loading Progression data from {lsx_file_path}")
+        # logging.info(f"Loading Progression data from {lsx_file_path}")
         root = parse_lsx_file(lsx_file_path)
 
         if root is None:
@@ -30,12 +30,12 @@ class Progression:
             ]
 
             subclasses = get_subclasses(prog_node) or []
-            logging.debug(f"Extracted subclasses: {subclasses}")
+            # logging.debug(f"Extracted subclasses: {subclasses}")
 
         return uuid, name, table_uuid, level, progression_type, boosts, passives, selectors, subclasses
 
     def load_from_node(self, prog_node):
-        logging.info("Loading Progression data from XML node")
+        # logging.info("Loading Progression data from XML node")
 
         attrs = ['UUID', 'Name', 'TableUUID', 'Level', 'ProgressionType', 'Boosts', 'PassivesAdded', 'Selectors']
         uuid, name, table_uuid, level, progression_type, boosts, passives, selectors = [
@@ -43,7 +43,7 @@ class Progression:
         ]
 
         subclasses = get_subclasses(prog_node) or []
-        logging.debug(f"Extracted subclasses: {subclasses}")
+        # logging.debug(f"Extracted subclasses: {subclasses}")
 
         self.uuid = uuid
         self.name = name

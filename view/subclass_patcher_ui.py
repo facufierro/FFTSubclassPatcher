@@ -70,12 +70,6 @@ class SubclassPatcherUI(object):
             self.retranslateUi(SubclassPatcherUI)
             QMetaObject.connectSlotsByName(SubclassPatcherUI)
 
-            # Initialize progress bar
-            self.progressBar = QProgressBar(SubclassPatcherUI)
-            self.progressBar.setObjectName("progressBar")
-            self.progressBar.setValue(0)  # Start progress at 0
-            self.gridLayout.addWidget(self.progressBar, 1, 2, 1, 1)
-
         except Exception as e:
             logging.error(f"Error setting up UI: {e}")  # Log the error if something goes wrong
 
@@ -134,6 +128,4 @@ class SubclassPatcherUI(object):
         selected_mod_indices = [index.row() for index in selected_indexes]
         return selected_mod_indices
 
-    def update_progress_bar(self, value):
-        logging.debug(f"Updating progress bar to {value}")
-        self.progressBar.setValue(value)
+

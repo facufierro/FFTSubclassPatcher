@@ -1,8 +1,11 @@
+# controller/subclass_patcher_controller.py
 import os
+import logging
 from typing import List, Optional
 from utils.settings_manager import SettingsManager
 from model.mod import Mod
 from model.mod_manager import ModManager
+from utils.file_manager import FileManager
 
 
 class SubclassPatcherController:
@@ -10,7 +13,6 @@ class SubclassPatcherController:
         # Initialize SettingsManager and View
         self.view = view
         self.settings_manager = settings_manager if settings_manager else SettingsManager()
-        
 
     def setup_mod_progress(self, mod):
         mod.add_progress_callback(self.view.update_progress_bar)
@@ -48,24 +50,22 @@ class SubclassPatcherController:
         # Load all mods from TEMP_DIRECTORY
         return ModManager.get_all_mods_from_files()
 
-    def load_mod(self, lsx_file_path: str):
-        # Create and load a single Mod from an LSX file
-        mod = Mod()
-        self.setup_mod_progress(mod)
-        mod.load_from_lsx(lsx_file_path)
 
     def create_mod_patch(self, selected_mod_paths: List[str]) -> bool:
         # Create a mod patch using the selected mods
 
+        # Step 0: Clean TEMP_DIRECTORY
+        FileManager.clean_folder(SettingsManager.TEMP_DIRECTORY)
         # Step 1: Unpack selected mods
         if not self.unpack_selected_mods(selected_mod_paths):
             return False  # Return false if unpacking failed
 
         # Step 2: Load all mods from TEMP_DIRECTORY
-        self.load_all_mods_from_temp_directory()
+        mods = self.load_all_mods_from_temp_directory()
 
         # Step 3: Process the mods (TODO: Implement this step)
-
+        for mod in mods:
+            logging.info(f"Processing mod {mod.name}")
         # Step 4: Repack the mods (TODO: Implement this step)
 
         # Step 5: Move them to OUTPUT_DIRECTORY (TODO: Implement this step)
