@@ -1,4 +1,4 @@
-# 
+# model/progression.py
 
 import logging
 from utils.lsx_parser import get_attribute, parse_lsx_file, get_subclasses
