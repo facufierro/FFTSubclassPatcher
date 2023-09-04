@@ -1,6 +1,7 @@
 import os
 import shutil
 import logging
+from typing import List
 
 
 class FileManager:
@@ -20,3 +21,22 @@ class FileManager:
                     logging.error(f'Failed to delete {file_path}. Reason: {e}')
         except Exception as e:
             logging.error(f'Failed to clean folder. Reason: {e}')
+
+    @staticmethod
+    def find_files(mod_folder_path, target_filenames: List[str]):
+        logging.info(f"Searching for target files in {mod_folder_path}")
+        found_files = {}
+
+        try:
+            for root, dirs, files in os.walk(mod_folder_path):
+                for filename in files:
+                    if filename in target_filenames:
+                        found_files[filename] = os.path.join(root, filename)
+
+            for target in target_filenames:
+                logging.debug(f"Found {target} at {found_files.get(target, 'Not Found')}")
+
+        except Exception as e:
+            logging.error(f"An error occurred while searching for target files: {e}")
+
+        return found_files

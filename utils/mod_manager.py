@@ -2,35 +2,16 @@
 import os
 import subprocess
 import logging
-from utils.settings_manager import SettingsManager
 from model.mod import Mod
+from utils.settings_manager import SettingsManager
+from utils.file_manager import FileManager
+
 
 # Initialize the logger
 logging.basicConfig(level=logging.INFO)
 
 
 class ModManager:
-
-    @staticmethod
-    def find_lsx_files(mod_folder_path):
-        logging.info(f"Searching for LSX files in {mod_folder_path}")
-        meta_lsx_path = None
-        progressions_lsx_path = None
-
-        try:
-            for root, dirs, files in os.walk(mod_folder_path):
-                for filename in files:
-                    if filename == 'meta.lsx':
-                        meta_lsx_path = os.path.join(root, filename)
-                    elif filename == 'Progressions.lsx':
-                        progressions_lsx_path = os.path.join(root, filename)
-
-            logging.debug(f"Found meta.lsx at {meta_lsx_path}")
-            logging.debug(f"Found Progressions.lsx at {progressions_lsx_path}")
-        except Exception as e:
-            logging.error(f"An error occurred while searching for LSX files: {e}")
-
-        return meta_lsx_path, progressions_lsx_path
 
     @staticmethod
     def get_all_mods_from_files():
@@ -40,8 +21,9 @@ class ModManager:
         try:
             for mod_folder in os.listdir(SettingsManager.TEMP_DIRECTORY):
                 mod_folder_path = os.path.join(SettingsManager.TEMP_DIRECTORY, mod_folder)
-
-                meta_lsx_path, progressions_lsx_path = ModManager.find_lsx_files(mod_folder_path)
+                target_files = FileManager.find_files(mod_folder_path, ['meta.lsx', 'Progressions.lsx'])
+                meta_lsx_path = target_files.get('meta.lsx')
+                progressions_lsx_path = target_files.get('Progressions.lsx')
 
                 if meta_lsx_path and progressions_lsx_path:
                     logging.debug(f"Creating mod object for {mod_folder}")
