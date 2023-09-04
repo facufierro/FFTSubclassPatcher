@@ -91,3 +91,11 @@ class FileManager:
         except Exception as e:
             logging.error(f"An error occurred in load_from_lsx: {e}")
             return []
+
+    @staticmethod
+    def create_folder(folder_path):
+        try:
+            os.makedirs(folder_path, exist_ok=True)
+            logging.info(f"Successfully created folder {folder_path}")
+        except Exception as e:
+            logging.error(f"Error in create_folder: {e}")
