@@ -4,7 +4,7 @@ import logging
 from typing import List, Optional
 from utils.settings_manager import SettingsManager
 from model.mod import Mod
-from model.mod_manager import ModManager
+from utils.mod_manager import ModManager
 from utils.file_manager import FileManager
 
 
@@ -63,8 +63,8 @@ class SubclassPatcherController:
         mods = self.load_all_mods_from_temp_directory()
 
         # Step 3: Process the mods (TODO: Implement this step)
-        patch = ModManager.combine_mods(mods)
-        
+        # patch = ModManager.combine_mods(mods)
+
         # Step 4: Repack the mods (TODO: Implement this step)
 
         # Step 5: Move them to OUTPUT_DIRECTORY (TODO: Implement this step)

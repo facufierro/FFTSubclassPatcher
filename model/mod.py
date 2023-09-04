@@ -1,59 +1,45 @@
 # model/mod.py
 import logging
 from model.progression import Progression
-from utils.lsx_parser import get_attribute, parse_lsx_file
+from utils.lsx_manager import load_from_lsx
 
 # Initialize logging
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.INFO)  # Adjust level as needed
 
 
 class Mod:
     def __init__(self, meta_lsx_file_path=None, progressions_lsx_file_path=None):
-        self.progress_callbacks = []
-        if meta_lsx_file_path and progressions_lsx_file_path:
-            logging.info(f"Initializing Mod with metadata from {meta_lsx_file_path} and progressions from {progressions_lsx_file_path}")
-            self.uuid, self.name, self.author, self.folder = self.load_meta_from_lsx(meta_lsx_file_path)
-            self.progressions = self.load_progressions_from_lsx(progressions_lsx_file_path)
-        else:
-            # Initialize with default values
-            logging.info("Initializing Mod with default values.")
-            self.uuid = "c0d54727-cce1-4da4-b5b7-180590fb2780"
-            self.name = "FFTSubclassPatch"
-            self.author = "fierrof"
-            self.folder = "FFTSubclassPatch"
-            self.progressions = []
+        self.uuid = "c0d54727-cce1-4da4-b5b7-180590fb2780"
+        self.name = "FFTSubclassPatch"
+        self.author = "fierrof"
+        self.folder = "FFTSubclassPatch"
+        self.progressions = []
 
-    def add_progress_callback(self, callback):
-        self.progress_callbacks.append(callback)
+        if meta_lsx_file_path is not None and progressions_lsx_file_path is not None:
+            self.meta_lsx_file_path = meta_lsx_file_path
+            self.progressions_lsx_file_path = progressions_lsx_file_path
+            self.load_meta()
+            self.load_progressions()
+            logging.info(f"{self.name} Initialized with UUID {self.uuid}")
 
-    def notify_progress(self, progress):
-        for callback in self.progress_callbacks:
-            callback(progress)
+    def load_meta(self):
+        mod_data = load_from_lsx(self.meta_lsx_file_path, 'ModuleInfo', ['UUID', 'Name', 'Author', 'Folder'])
+        self.uuid = mod_data[0][0]
+        self.name = mod_data[0][1]
+        self.author = mod_data[0][2]
+        self.folder = mod_data[0][3]
 
-    def load_meta_from_lsx(self, lsx_file_path):
-        logging.info(f"Loading metadata from {lsx_file_path}")
-        root = parse_lsx_file(lsx_file_path)
-        for mod_node in root.xpath(".//node[@id='ModuleInfo']"):
-            attrs = ['UUID', 'Name', 'Author', 'Folder']
-            uuid, name, author, folder = [get_attribute(mod_node, attr) for attr in attrs]
-        return uuid, name, author, folder
+    def load_progressions(self):
+        if self.progressions_lsx_file_path:
+            try:
+                progressions_data = load_from_lsx(self.progressions_lsx_file_path, "Progression", ["UUID", "Name", "TableUUID", "Level", "ProgressionType", "Boosts", "PassivesAdded", "Selectors"], "SubClass")
+                for progression_data in progressions_data:
+                    progression = Progression(progression_data[0], progression_data[1], progression_data[2], progression_data[3], progression_data[4], progression_data[5], progression_data[6], progression_data[7], progression_data[8])
+                    self.progressions.append(progression)
 
-    def load_progressions_from_lsx(self, lsx_file_path):
-        logging.info(f"Loading progressions from {lsx_file_path}")
-        root = parse_lsx_file(lsx_file_path)
-        if root is None:
-            logging.error(f"Failed to parse file: {lsx_file_path}")
-            return
-
-        self.progressions = []  # Resetting the list
-        total_nodes = len(root.xpath(".//node[@id='Progression']"))
-
-        for i, prog_node in enumerate(root.xpath(".//node[@id='Progression']")):
-            progression = Progression()
-            progression.load_from_node(prog_node)
-            self.progressions.append(progression)
-            progress = (i+1) / total_nodes * 100
-            self.notify_progress(progress)
+            except Exception as e:
+                logging.error(f"An error occurred while loading progressions: {e}")
+                return []
 
     def meta_string(self) -> str:
         return (
