@@ -7,7 +7,7 @@ logging.basicConfig(level=logging.INFO)
 
 
 class Progression:
-    def __init__(self, uuid, name, table_uuid, level, progression_type, boosts=None, passives_added=None, selectors=None, allow_improvement=None, subclasses=None):
+    def __init__(self, uuid, name, table_uuid, level, progression_type, boosts=None, passives_added=None, selectors=None, allow_improvement=None, is_multiclass=None, subclasses=None):
         self.uuid = uuid
         self.name = name
         self.table_uuid = table_uuid
@@ -17,6 +17,7 @@ class Progression:
         self.passives_added = passives_added if passives_added else ""
         self.selectors = selectors if selectors else ""
         self.allow_improvement = allow_improvement if allow_improvement else ""
+        self.is_multiclass = is_multiclass if is_multiclass else ""
         self.subclasses = subclasses if subclasses else []
 
     def __str__(self):
@@ -47,6 +48,8 @@ class Progression:
             optional_attributes.append(f'  <attribute id="Selectors" type="LSString" value="{self.selectors}"/>\n')
         if self.allow_improvement != "":
             optional_attributes.append(f'  <attribute id="AllowImprovement" type="bool" value="{self.allow_improvement}"/>\n')
+        if self.is_multiclass != "":
+            optional_attributes.append(f'  <attribute id="IsMulticlass" type="bool" value="{self.is_multiclass}"/>\n')
         return (
             f'\n<!-- {self.name} -->\n'
             '<node id="Progression">\n'
