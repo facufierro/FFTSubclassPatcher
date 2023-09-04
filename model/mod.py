@@ -9,17 +9,19 @@ logging.basicConfig(level=logging.INFO)  # Adjust level as needed
 
 class Mod:
     def __init__(self, meta_lsx_file_path=None, progressions_lsx_file_path=None, class_descriptions_path=None):
+        logging.debug("Mod constructor called")
         self.uuid = "c0d54727-cce1-4da4-b5b7-180590fb2780"
         self.name = "FFTSubclassPatch"
         self.author = "fierrof"
         self.folder = "FFTSubclassPatch"
         self.description = "A compatibility patch for subclasses in Baldur's Gate 3."
         self.progressions = []
-
-        if meta_lsx_file_path and progressions_lsx_file_path and class_descriptions_path:
+        self.class_descriptions_path = None
+        if meta_lsx_file_path and progressions_lsx_file_path:
             self.meta_lsx_file_path = meta_lsx_file_path
             self.progressions_lsx_file_path = progressions_lsx_file_path
-            self.class_descriptions_path = class_descriptions_path
+            if class_descriptions_path is not None:
+                self.class_descriptions_path = class_descriptions_path
             self.load_meta()
             self.load_progressions()
             logging.info(f"{self.name} Initialized with UUID {self.uuid}")
@@ -36,6 +38,8 @@ class Mod:
         self.description = mod_data[0].get('Description', self.description)
 
     def load_progressions(self):
+        logging.debug("load_progressions method called")
+
         def subclass_handler(node, node_data):
             subclasses = []
             for child_node in node.xpath(".//node[@id='SubClass']"):
@@ -49,20 +53,22 @@ class Mod:
             ["UUID", "Name", "TableUUID", "Level", "ProgressionType", "Boosts", "PassivesAdded", "Selectors", "AllowImprovement"],
             child_handler=subclass_handler
         )
+        class_description_dict = {}  # Initialize to an empty dictionary
 
-        class_descriptions = FileManager.load_nodes(self.class_descriptions_path, 'ClassDescription', ['UUID', 'Name'])
-
-        class_description_dict = {desc['UUID']: desc['Name'] for desc in class_descriptions}
+        if self.class_descriptions_path is not None:
+            class_descriptions = FileManager.load_nodes(self.class_descriptions_path, 'ClassDescription', ['UUID', 'Name'])
+            class_description_dict = {desc['UUID']: desc['Name'] for desc in class_descriptions}
 
         self.progressions = []  # Clear existing progressions if any
 
         for progression_data in progressions_data:
-            for subclass in progression_data.get('SubClasses', []):
-                if subclass['UUID'] in class_description_dict:
-                    subclass['Name'] = class_description_dict[subclass['UUID']]
+            subclasses = progression_data.get('SubClasses', [])
+            if subclasses:
+                for subclass in subclasses:
+                    if subclass['UUID'] in class_description_dict:
+                        subclass['Name'] = class_description_dict[subclass['UUID']]
 
             progression = Progression(
-
                 uuid=progression_data.get("UUID"),
                 name=progression_data.get("Name"),
                 table_uuid=progression_data.get("TableUUID"),
@@ -71,9 +77,11 @@ class Mod:
                 boosts=progression_data.get("Boosts"),
                 passives=progression_data.get("PassivesAdded"),
                 selectors=progression_data.get("Selectors"),
-                allowimprovement=progression_data.get("AllowImprovement"),
-                subclasses=progression_data.get("SubClasses", [])
+                allow_improvement=progression_data.get("AllowImprovement"),
+                subclasses=subclasses
             )
+
+            # logging.debug(f"Progressions data: {progressions_data}")
             self.progressions.append(progression)
 
         # Log the subclasses
