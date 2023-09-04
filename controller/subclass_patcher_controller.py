@@ -61,9 +61,10 @@ class SubclassPatcherController:
 
         # Step 2: Load all mods from TEMP_DIRECTORY
         mods = self.load_all_mods_from_temp_directory()
-
+        logging.info(f"Loaded {len(mods)} mods from TEMP_DIRECTORY")
         # Step 3: Process the mods (TODO: Implement this step)
-        # patch = ModManager.combine_mods(mods)
+        patch = ModManager.combine_mods(mods)
+        logging.info(patch)
 
         # Step 4: Repack the mods (TODO: Implement this step)
 

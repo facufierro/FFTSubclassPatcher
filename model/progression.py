@@ -18,30 +18,30 @@ class Progression:
         self.selectors = selectors if selectors else ""
         self.subclasses = subclasses if subclasses else []
 
-    def combine(self, other):
-        logging.info(f"Combining Progression objects with UUIDs {self.uuid['value']} and {other.uuid['value']}")
-        if self.uuid["value"] == other.uuid["value"]:
-            for subclass in other.subclasses:
-                if subclass not in self.subclasses:
-                    self.subclasses.append(subclass)
-                    logging.debug(f"Added subclass {subclass}")
+    # def combine(self, other):
+    #     logging.info(f"Combining Progression objects with UUIDs {self.uuid['value']} and {other.uuid['value']}")
+    #     if self.uuid == other.uuid:
+    #         for subclass in other.subclasses:
+    #             if subclass not in self.subclasses:
+    #                 self.subclasses.append(subclass)
+    #                 logging.debug(f"Added subclass {subclass}")
 
     def __str__(self):
         subclass_nodes = ''
         for subclass in self.subclasses:
-            subclass_nodes += f'<!-- {subclass["name"]} -->\n'
+            # subclass_nodes += f'<!-- {subclass["name"]} -->\n'
             subclass_nodes += f'<node id="SubClass">\n'
-            subclass_nodes += f'  <attribute id="Object" type="guid" value="{subclass["uuid"]}"/>\n'
+            subclass_nodes += f'  <attribute id="Object" type="guid" value="{subclass}"/>\n'
             subclass_nodes += '</node>\n'
 
         return (
-            f'{self.comment}\n'
+            f'<!-- {self.name} -->\n'
             '<node id="Progression">\n'
-            f'  <attribute id="{self.uuid["id"]}" type="{self.uuid["type"]}" value="{self.uuid["value"]}"/>\n'
-            f'  <attribute id="{self.name["id"]}" type="{self.name["type"]}" value="{self.name["value"]}"/>\n'
-            f'  <attribute id="{self.table_uuid["id"]}" type="{self.table_uuid["type"]}" value="{self.table_uuid["value"]}"/>\n'
-            f'  <attribute id="{self.level["id"]}" type="{self.level["type"]}" value="{self.level["value"]}"/>\n'
-            f'  <attribute id="{self.progression_type["id"]}" type="{self.progression_type["type"]}" value="{self.progression_type["value"]}"/>\n'
+            f'  <attribute id="UUID" type="guid" value="{self.uuid}"/>\n'
+            f'  <attribute id="Name" type="LSString" value="{self.name}"/>\n'
+            f'  <attribute id="TableUUID" type="guid" value="{self.table_uuid}"/>\n'
+            f'  <attribute id="Level" type="uint8" value="{self.level}"/>\n'
+            f'  <attribute id=ProgressionType" type="uint8" value="{self.progression_type}"/>\n'
             '  <children>\n'
             '    <node id="SubClasses">\n'
             '      <children>\n'
