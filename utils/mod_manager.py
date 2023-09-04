@@ -134,3 +134,32 @@ class ModManager:
             else:
                 logging.warning(f"No progressions in mod: {mod.name}")
         return patch
+
+    @staticmethod
+    def pack_mod(mod_folder_path):
+        try:
+
+            # Create a .pak file name based on the mod folder name
+            pak_file_name = "FFTSubclassPatch.pak"
+
+            # Join this file name with your OUTPUT_DIR to get the full path
+            pak_file_path = os.path.join(SettingsManager.OUTPUT_DIRECTORY, pak_file_name)
+
+            command = [
+                SettingsManager.DIVINE_DIRECTORY,
+                "-g",
+                "bg3",  # Replace this with the appropriate game if needed
+                "--action",
+                "create-package",
+                "--source",
+                mod_folder_path,
+                "--destination",
+                pak_file_path,
+                "-l",
+                "all",
+            ]
+            subprocess.run(command, check=True)
+            return True
+        except Exception as e:
+            logging.error(
+                f"Failed to pack {mod_folder_path} to {pak_file_path}: {e}")

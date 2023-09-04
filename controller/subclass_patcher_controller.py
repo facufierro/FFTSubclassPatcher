@@ -72,5 +72,6 @@ class SubclassPatcherController:
         ModManager.create_patch_folder(patch)
 
         # Step 5: Repack the mods to OUTPUT_DIRECTORY (TODO: Implement this step)
-
+        patch_path = os.path.join(SettingsManager.TEMP_DIRECTORY, patch.folder)
+        ModManager.pack_mod(patch_path)
         return True  # Return true if patching succeeded
