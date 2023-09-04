@@ -46,7 +46,7 @@ class Mod:
         progressions_data = FileManager.load_nodes(
             self.progressions_lsx_file_path,
             "Progression",
-            ["UUID", "Name", "TableUUID", "Level", "ProgressionType", "Boosts", "PassivesAdded", "Selectors"],
+            ["UUID", "Name", "TableUUID", "Level", "ProgressionType", "Boosts", "PassivesAdded", "Selectors", "AllowImprovement"],
             child_handler=subclass_handler
         )
 
@@ -71,6 +71,7 @@ class Mod:
                 boosts=progression_data.get("Boosts"),
                 passives=progression_data.get("PassivesAdded"),
                 selectors=progression_data.get("Selectors"),
+                allowimprovement=progression_data.get("AllowImprovement"),
                 subclasses=progression_data.get("SubClasses", [])
             )
             self.progressions.append(progression)

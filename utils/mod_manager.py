@@ -95,6 +95,19 @@ class ModManager:
                             existing_subclass_uuids = {s['UUID'] for s in existing_progression.subclasses}
                             new_subclasses = [s for s in progression.subclasses if s['UUID'] not in existing_subclass_uuids]
                             existing_progression.subclasses.extend(new_subclasses)
+
+                            # Merge all attributes
+                            for attr in ['boosts', 'passives', 'selectors', 'allowimprovement']:  # Add more attributes here as needed
+                                existing_attr_value = getattr(existing_progression, attr, None)
+                                new_attr_value = getattr(progression, attr, None)
+
+                                if existing_attr_value in [None, ""] or new_attr_value in [None, ""]:
+                                    continue  # Skip merging for this attribute
+                                existing_attr_values = set(existing_attr_value.split(';'))
+                                new_attr_values = set(new_attr_value.split(';'))
+                                merged_attr_values = existing_attr_values.union(new_attr_values)
+                                setattr(existing_progression, attr, ';'.join(merged_attr_values))
+
                         else:
                             # Add the whole progression if it doesn't exist
                             patch.progressions.append(progression)
