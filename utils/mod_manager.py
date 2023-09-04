@@ -84,12 +84,13 @@ class ModManager:
     def combine_mods(mods):
         patch = Mod()
         for mod in mods:
-            if mod.progressions is not None:  # Check if progressions is None
+            if mod.progressions is not None:
                 for progression in mod.progressions:
                     if progression.subclasses:
                         patch.progressions.append(progression)
-                        logging.debug(f"Added progression {progression.name}")
-                        logging.debug(f"{progression.__str__()}")
+                        
+                        # logging.debug(f"Added progression {progression.name}")
+                        # logging.debug(f"{progression.__str__()}")
             else:
                 logging.warning(f"No progressions in mod: {mod.name}")
         return patch
