@@ -8,7 +8,7 @@ logging.basicConfig(level=logging.INFO)  # Adjust level as needed
 
 
 class Mod:
-    def __init__(self, meta_lsx_file_path=None, progressions_lsx_file_path=None):
+    def __init__(self, meta_lsx_file_path=None, progressions_lsx_file_path=None, class_descriptions_path=None):
         self.uuid = "c0d54727-cce1-4da4-b5b7-180590fb2780"
         self.name = "FFTSubclassPatch"
         self.author = "fierrof"
@@ -16,9 +16,10 @@ class Mod:
         self.description = "A compatibility patch for subclasses in Baldur's Gate 3."
         self.progressions = []
 
-        if meta_lsx_file_path and progressions_lsx_file_path:
+        if meta_lsx_file_path and progressions_lsx_file_path and class_descriptions_path:
             self.meta_lsx_file_path = meta_lsx_file_path
             self.progressions_lsx_file_path = progressions_lsx_file_path
+            self.class_descriptions_path = class_descriptions_path
             self.load_meta()
             self.load_progressions()
             logging.info(f"{self.name} Initialized with UUID {self.uuid}")
@@ -39,7 +40,7 @@ class Mod:
             subclasses = []
             for child_node in node.xpath(".//node[@id='SubClass']"):
                 uuid = FileManager.get_attribute(child_node, 'Object')
-                subclasses.append({'Name': 'CustomName', 'UUID': uuid})
+                subclasses.append({'Name': 'Base Game Subclass', 'UUID': uuid})
             node_data['SubClasses'] = subclasses
 
         progressions_data = FileManager.load_nodes(
@@ -49,9 +50,19 @@ class Mod:
             child_handler=subclass_handler
         )
 
+        class_descriptions = FileManager.load_nodes(self.class_descriptions_path, 'ClassDescription', ['UUID', 'Name'])
+
+        class_description_dict = {desc['UUID']: desc['Name'] for desc in class_descriptions}
+
         self.progressions = []  # Clear existing progressions if any
+
         for progression_data in progressions_data:
+            for subclass in progression_data.get('SubClasses', []):
+                if subclass['UUID'] in class_description_dict:
+                    subclass['Name'] = class_description_dict[subclass['UUID']]
+
             progression = Progression(
+
                 uuid=progression_data.get("UUID"),
                 name=progression_data.get("Name"),
                 table_uuid=progression_data.get("TableUUID"),
