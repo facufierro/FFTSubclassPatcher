@@ -50,7 +50,7 @@ class Mod:
         progressions_data = FileManager.load_nodes(
             self.progressions_lsx_file_path,
             "Progression",
-            ["UUID", "Name", "TableUUID", "Level", "ProgressionType", "Boosts", "PassivesAdded", "Selectors", "AllowImprovement", "IsMulticlass"],
+            ["UUID", "Name", "TableUUID", "Level", "ProgressionType", "Boosts", "PassivesAdded", "PassivesRemoved", "Selectors", "AllowImprovement", "IsMulticlass"],
             child_handler=subclass_handler
         )
         class_description_dict = {}  # Initialize to an empty dictionary
@@ -76,6 +76,7 @@ class Mod:
                 progression_type=progression_data.get("ProgressionType"),
                 boosts=progression_data.get("Boosts"),
                 passives_added=progression_data.get("PassivesAdded"),
+                passives_removed=progression_data.get("PassivesRemoved"),
                 selectors=progression_data.get("Selectors"),
                 allow_improvement=progression_data.get("AllowImprovement"),
                 is_multiclass=progression_data.get("IsMulticlass"),

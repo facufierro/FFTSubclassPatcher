@@ -7,7 +7,7 @@ logging.basicConfig(level=logging.INFO)
 
 
 class Progression:
-    def __init__(self, uuid, name, table_uuid, level, progression_type, boosts=None, passives_added=None, selectors=None, allow_improvement=None, is_multiclass=None, subclasses=None):
+    def __init__(self, uuid, name, table_uuid, level, progression_type, boosts=None, passives_added=None, passives_removed=None, selectors=None, allow_improvement=None, is_multiclass=None, subclasses=None):
         self.uuid = uuid
         self.name = name
         self.table_uuid = table_uuid
@@ -15,6 +15,7 @@ class Progression:
         self.progression_type = progression_type
         self.boosts = boosts if boosts else ""
         self.passives_added = passives_added if passives_added else ""
+        self.passives_removed = passives_removed if passives_removed else ""
         self.selectors = selectors if selectors else ""
         self.allow_improvement = allow_improvement if allow_improvement else ""
         self.is_multiclass = is_multiclass if is_multiclass else ""
@@ -44,6 +45,8 @@ class Progression:
             optional_attributes.append(f'  <attribute id="Boosts" type="LSString" value="{self.boosts}"/>\n')
         if self.passives_added != "":
             optional_attributes.append(f'  <attribute id="PassivesAdded" type="LSString" value="{self.passives_added}"/>\n')
+        if self.passives_removed != "":
+            optional_attributes.append(f'  <attribute id="PassivesRemoved" type="LSString" value="{self.passives_removed}"/>\n')
         if self.selectors != "":
             optional_attributes.append(f'  <attribute id="Selectors" type="LSString" value="{self.selectors}"/>\n')
         if self.allow_improvement != "":

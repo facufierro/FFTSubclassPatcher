@@ -117,7 +117,7 @@ class ModManager:
                         existing_progression.subclasses.extend(new_subclasses)
 
                         # Merge all attributes
-                        for attr in ['boosts', 'passives_added', 'selectors', 'allow_improvement', 'is_multiclass']:  # Add more attributes here as needed
+                        for attr in ['boosts', 'passives_added', 'passives_removed' 'selectors', 'allow_improvement', 'is_multiclass']:  # Add more attributes here as needed
                             existing_attr_value = getattr(existing_progression, attr, None)
                             new_attr_value = getattr(progression, attr, None)
 
