@@ -62,14 +62,14 @@ class SubclassPatcherController:
         # Step 2: Load all mods from TEMP_DIRECTORY
         mods = self.load_all_mods_from_temp_directory()
         logging.info(f"Loaded {len(mods)} mods from TEMP_DIRECTORY")
-        logging.debug(f"{mods[0].progressions_string()}")
+        # logging.debug(f"{mods[0].progressions_string()}")
 
         # Step 3: Process the mods into a single patch
         patch = ModManager.combine_mods(mods)
-        logging.info(patch.progressions_string())
+        # logging.info(patch.progressions_string())
 
         # Setp 4: Create patch folders and files in TEMP_DIRECTORY (TODO: Implement this step)
-        
+        ModManager.create_patch_folder(patch)
 
         # Step 5: Repack the mods to OUTPUT_DIRECTORY (TODO: Implement this step)
 

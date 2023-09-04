@@ -75,7 +75,7 @@ class Mod:
                 level=progression_data.get("Level"),
                 progression_type=progression_data.get("ProgressionType"),
                 boosts=progression_data.get("Boosts"),
-                passives=progression_data.get("PassivesAdded"),
+                passives_added=progression_data.get("PassivesAdded"),
                 selectors=progression_data.get("Selectors"),
                 allow_improvement=progression_data.get("AllowImprovement"),
                 subclasses=subclasses

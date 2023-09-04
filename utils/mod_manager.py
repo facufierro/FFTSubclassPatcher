@@ -53,6 +53,26 @@ class ModManager:
         return lstMods
 
     @staticmethod
+    def create_patch_folder(patch):
+        meta_file_path = os.path.join(SettingsManager.TEMP_DIRECTORY, patch.folder, "Mods", patch.folder, "meta.lsx")
+        if FileManager.create_file(meta_file_path):
+            if FileManager.write_file(meta_file_path, patch.meta_string()):
+                logging.info("Successfully created and wrote to meta file.")
+            else:
+                logging.error("Failed to write to meta file.")
+        else:
+            logging.error("Failed to create meta file.")
+        # create Progressions.lsx
+        progressions_file_path = os.path.join(SettingsManager.TEMP_DIRECTORY, patch.folder, "Public", patch.folder, "Progressions", "Progressions.lsx")
+        if FileManager.create_file(progressions_file_path):
+            if FileManager.write_file(progressions_file_path, patch.progressions_string()):
+                logging.info("Successfully created and wrote to progressions file.")
+            else:
+                logging.error("Failed to write to progressions file.")
+        else:
+            logging.error("Failed to create progressions file.")
+
+    @staticmethod
     def unpack_mod(mod_path):
         try:
             divine_dir = SettingsManager().DIVINE_DIRECTORY
@@ -86,31 +106,31 @@ class ModManager:
         for mod in mods:
             if mod.progressions is not None:
                 for progression in mod.progressions:
-                    if progression.subclasses:
-                        # Check if this progression already exists in patch
-                        existing_progression = next((p for p in patch.progressions if p.uuid == progression.uuid), None)
 
-                        if existing_progression:
-                            # Merge subclasses if progression already exists
-                            existing_subclass_uuids = {s['UUID'] for s in existing_progression.subclasses}
-                            new_subclasses = [s for s in progression.subclasses if s['UUID'] not in existing_subclass_uuids]
-                            existing_progression.subclasses.extend(new_subclasses)
+                    # Check if this progression already exists in patch
+                    existing_progression = next((p for p in patch.progressions if p.uuid == progression.uuid), None)
 
-                            # Merge all attributes
-                            for attr in ['boosts', 'passives', 'selectors', 'allow_improvement']:  # Add more attributes here as needed
-                                existing_attr_value = getattr(existing_progression, attr, None)
-                                new_attr_value = getattr(progression, attr, None)
+                    if existing_progression:
+                        # Merge subclasses if progression already exists
+                        existing_subclass_uuids = {s['UUID'] for s in existing_progression.subclasses}
+                        new_subclasses = [s for s in progression.subclasses if s['UUID'] not in existing_subclass_uuids]
+                        existing_progression.subclasses.extend(new_subclasses)
 
-                                if existing_attr_value in [None, ""] or new_attr_value in [None, ""]:
-                                    continue  # Skip merging for this attribute
-                                existing_attr_values = set(existing_attr_value.split(';'))
-                                new_attr_values = set(new_attr_value.split(';'))
-                                merged_attr_values = existing_attr_values.union(new_attr_values)
-                                setattr(existing_progression, attr, ';'.join(merged_attr_values))
+                        # Merge all attributes
+                        for attr in ['boosts', 'passives_added', 'selectors', 'allow_improvement']:  # Add more attributes here as needed
+                            existing_attr_value = getattr(existing_progression, attr, None)
+                            new_attr_value = getattr(progression, attr, None)
 
-                        else:
-                            # Add the whole progression if it doesn't exist
-                            patch.progressions.append(progression)
+                            if existing_attr_value in [None, ""] or new_attr_value in [None, ""]:
+                                continue  # Skip merging for this attribute
+                            existing_attr_values = set(existing_attr_value.split(';'))
+                            new_attr_values = set(new_attr_value.split(';'))
+                            merged_attr_values = existing_attr_values.union(new_attr_values)
+                            setattr(existing_progression, attr, ';'.join(merged_attr_values))
+
+                    else:
+                        # Add the whole progression if it doesn't exist
+                        patch.progressions.append(progression)
             else:
                 logging.warning(f"No progressions in mod: {mod.name}")
         return patch

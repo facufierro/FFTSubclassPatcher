@@ -7,14 +7,14 @@ logging.basicConfig(level=logging.INFO)
 
 
 class Progression:
-    def __init__(self, uuid, name, table_uuid, level, progression_type, boosts=None, passives=None, selectors=None, allow_improvement=None, subclasses=None):
+    def __init__(self, uuid, name, table_uuid, level, progression_type, boosts=None, passives_added=None, selectors=None, allow_improvement=None, subclasses=None):
         self.uuid = uuid
         self.name = name
         self.table_uuid = table_uuid
         self.level = level
         self.progression_type = progression_type
         self.boosts = boosts if boosts else ""
-        self.passives = passives if passives else ""
+        self.passives_added = passives_added if passives_added else ""
         self.selectors = selectors if selectors else ""
         self.allow_improvement = allow_improvement if allow_improvement else ""
         self.subclasses = subclasses if subclasses else []
@@ -41,14 +41,14 @@ class Progression:
         optional_attributes = []
         if self.boosts != "":
             optional_attributes.append(f'  <attribute id="Boosts" type="LSString" value="{self.boosts}"/>\n')
-        if self.passives != "":
-            optional_attributes.append(f'  <attribute id="Passives" type="LSString" value="{self.passives}"/>\n')
+        if self.passives_added != "":
+            optional_attributes.append(f'  <attribute id="PassivesAdded" type="LSString" value="{self.passives_added}"/>\n')
         if self.selectors != "":
             optional_attributes.append(f'  <attribute id="Selectors" type="LSString" value="{self.selectors}"/>\n')
         if self.allow_improvement != "":
             optional_attributes.append(f'  <attribute id="AllowImprovement" type="bool" value="{self.allow_improvement}"/>\n')
         return (
-            f'<!-- {self.name} -->\n'
+            f'\n<!-- {self.name} -->\n'
             '<node id="Progression">\n'
             f'  <attribute id="UUID" type="guid" value="{self.uuid}"/>\n'
 

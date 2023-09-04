@@ -93,9 +93,40 @@ class FileManager:
             return []
 
     @staticmethod
-    def create_folder(folder_path):
+    def create_file(file_path):
+        # Log the file path for debugging
+        logging.debug(f"Trying to create file at {file_path}")
+
+        # Create directories if they don't exist
+        directory = os.path.dirname(file_path)
+        if not os.path.exists(directory):
+            try:
+                os.makedirs(directory)
+                logging.info(f"Created directory {directory}")
+            except Exception as e:
+                logging.error(f"Failed to create directory {directory}: {e}")
+                return False
+
+        # Create file if it doesn't exist
+        if not os.path.exists(file_path):
+            try:
+                open(file_path, 'w').close()
+                logging.info(f"Created file {file_path}")
+                return True
+            except Exception as e:
+                logging.error(f"Failed to create file {file_path}: {e}")
+                return False
+        else:
+            logging.info(f"File {file_path} already exists")
+            return True
+
+    @staticmethod
+    def write_file(file_path, content):
         try:
-            os.makedirs(folder_path, exist_ok=True)
-            logging.info(f"Successfully created folder {folder_path}")
+            with open(file_path, 'w') as f:
+                f.write(content)
+            logging.info(f"Wrote content to {file_path}")
+            return True
         except Exception as e:
-            logging.error(f"Error in create_folder: {e}")
+            logging.error(f"Failed to write to file {file_path}: {e}")
+            return False
