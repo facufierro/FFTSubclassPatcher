@@ -4,3 +4,4 @@ _env
 logs/
 output/
 temp/
+**/__pycache__/
