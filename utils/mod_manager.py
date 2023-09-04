@@ -22,12 +22,12 @@ class ModManager:
             for mod_folder in os.listdir(SettingsManager.TEMP_DIRECTORY):
                 mod_folder_path = os.path.join(SettingsManager.TEMP_DIRECTORY, mod_folder)
                 target_files = FileManager.find_files(mod_folder_path, ['meta.lsx', 'Progressions.lsx'])
-                meta_lsx_path = target_files.get('meta.lsx')
-                progressions_lsx_path = target_files.get('Progressions.lsx')
+                meta_path = target_files.get('meta.lsx')
+                progressions_path = target_files.get('Progressions.lsx')
 
-                if meta_lsx_path and progressions_lsx_path:
+                if meta_path and progressions_path:
                     logging.debug(f"Creating mod object for {mod_folder}")
-                    mod = Mod(meta_lsx_path, progressions_lsx_path)
+                    mod = Mod(meta_path, progressions_path)
                     all_mods.append(mod)
                 else:
                     logging.warning(f"Could not find required LSX files for mod {mod_folder}")
