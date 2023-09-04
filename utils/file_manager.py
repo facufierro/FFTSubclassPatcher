@@ -1,7 +1,8 @@
 import os
 import shutil
 import logging
-from typing import List
+from lxml import etree
+from typing import List, Optional
 
 
 class FileManager:
@@ -40,3 +41,56 @@ class FileManager:
             logging.error(f"An error occurred while searching for target files: {e}")
 
         return found_files
+
+    @staticmethod
+    def get_attribute(node, attr_id, default=None) -> Optional[str]:
+        try:
+            # Extract the value of the attribute specified by attr_id
+            result = node.xpath(f"./attribute[@id='{attr_id}']/@value")
+        except Exception as e:
+            logging.error(f"Error in get_attribute: {e}")
+            return default
+        return result[0] if result else default
+
+    @staticmethod
+    def parse_lsx(file_path):
+        if not os.path.exists(file_path):
+            logging.error(f"File not found: {file_path}")
+            return None
+        try:
+            # Initialize parser and parse the XML
+            parser = etree.XMLParser(remove_blank_text=True)
+            tree = etree.parse(file_path, parser)
+            root = tree.getroot()
+            # Log successful parsing
+            logging.info(f"Successfully parsed {file_path}")
+            return root
+        except Exception as e:
+            logging.error(f"Error in parse_lsx: {e}")
+            return None
+
+    @staticmethod
+    def load_nodes(lsx_file_path, node_name, attribute_list, child_node_name=None):
+        try:
+            root = FileManager.parse_lsx(lsx_file_path)
+            if root is None:
+                logging.error("Failed to parse LSX file")
+                return []
+
+            nodes_data = []
+            for node in root.xpath(f".//node[@id='{node_name}']"):
+                node_data = [FileManager.get_attribute(node, attr) for attr in attribute_list]
+                if child_node_name:
+                    child_data = []
+                    for child_node in node.xpath(f".//node[@id='{child_node_name}']"):
+                        child_attr = FileManager.get_attribute(child_node, 'Object')  # Assuming the child attribute is named 'Object'
+                        if child_attr:
+                            child_data.append(child_attr)
+                    node_data.append(child_data)
+                nodes_data.append(node_data)
+
+            return nodes_data if nodes_data else []
+
+        except Exception as e:
+            logging.error(f"An error occurred in load_nodes: {e}")
+            return []

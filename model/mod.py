@@ -1,7 +1,7 @@
 # model/mod.py
 import logging
 from model.progression import Progression
-from utils.lsx_manager import load_from_lsx
+from utils.file_manager import FileManager
 
 # Initialize logging
 logging.basicConfig(level=logging.INFO)  # Adjust level as needed
@@ -23,7 +23,7 @@ class Mod:
             logging.info(f"{self.name} Initialized with UUID {self.uuid}")
 
     def load_meta(self):
-        mod_data = load_from_lsx(self.meta_lsx_file_path, 'ModuleInfo', ['UUID', 'Name', 'Author', 'Folder'])
+        mod_data = FileManager.load_nodes(self.meta_lsx_file_path, 'ModuleInfo', ['UUID', 'Name', 'Author', 'Folder'])
         self.uuid = mod_data[0][0]
         self.name = mod_data[0][1]
         self.author = mod_data[0][2]
@@ -32,7 +32,7 @@ class Mod:
     def load_progressions(self):
         if self.progressions_lsx_file_path:
             try:
-                progressions_data = load_from_lsx(self.progressions_lsx_file_path, "Progression", ["UUID", "Name", "TableUUID", "Level", "ProgressionType", "Boosts", "PassivesAdded", "Selectors"], "SubClass")
+                progressions_data = FileManager.load_nodes(self.progressions_lsx_file_path, "Progression", ["UUID", "Name", "TableUUID", "Level", "ProgressionType", "Boosts", "PassivesAdded", "Selectors"], "SubClass")
                 for progression_data in progressions_data:
                     progression = Progression(progression_data[0], progression_data[1], progression_data[2], progression_data[3], progression_data[4], progression_data[5], progression_data[6], progression_data[7], progression_data[8])
                     self.progressions.append(progression)
