@@ -70,7 +70,7 @@ class FileManager:
             return None
 
     @staticmethod
-    def load_nodes(lsx_file_path, node_name, attribute_list, child_node_name=None):
+    def load_nodes(lsx_file_path, node_name, attribute_list, child_node_name=None, child_key_attr=None, child_value_attr=None):
         try:
             root = FileManager.parse_lsx(lsx_file_path)
             if root is None:
@@ -79,18 +79,24 @@ class FileManager:
 
             nodes_data = []
             for node in root.xpath(f".//node[@id='{node_name}']"):
-                node_data = [FileManager.get_attribute(node, attr) for attr in attribute_list]
-                if child_node_name:
-                    child_data = []
+                node_data = {attr: FileManager.get_attribute(node, attr) for attr in attribute_list}
+
+                if child_node_name and child_key_attr and child_value_attr:
+                    child_data = {}
                     for child_node in node.xpath(f".//node[@id='{child_node_name}']"):
-                        child_attr = FileManager.get_attribute(child_node, 'Object')  # Assuming the child attribute is named 'Object'
-                        if child_attr:
-                            child_data.append(child_attr)
-                    node_data.append(child_data)
+                        child_key = FileManager.get_attribute(child_node, child_key_attr)
+                        child_value = FileManager.get_attribute(child_node, child_value_attr)
+                        if child_key and child_value:
+                            if child_key in child_data:
+                                child_data[child_key].add(child_value)
+                            else:
+                                child_data[child_key] = {child_value}
+                    node_data[child_node_name] = child_data
+
                 nodes_data.append(node_data)
 
             return nodes_data if nodes_data else []
 
         except Exception as e:
-            logging.error(f"An error occurred in load_nodes: {e}")
+            logging.error(f"An error occurred in load_from_lsx: {e}")
             return []
