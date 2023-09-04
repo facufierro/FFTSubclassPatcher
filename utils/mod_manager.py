@@ -87,10 +87,17 @@ class ModManager:
             if mod.progressions is not None:
                 for progression in mod.progressions:
                     if progression.subclasses:
-                        patch.progressions.append(progression)
-                        
-                        # logging.debug(f"Added progression {progression.name}")
-                        # logging.debug(f"{progression.__str__()}")
+                        # Check if this progression already exists in patch
+                        existing_progression = next((p for p in patch.progressions if p.uuid == progression.uuid), None)
+
+                        if existing_progression:
+                            # Merge subclasses if progression already exists
+                            existing_subclass_uuids = {s['UUID'] for s in existing_progression.subclasses}
+                            new_subclasses = [s for s in progression.subclasses if s['UUID'] not in existing_subclass_uuids]
+                            existing_progression.subclasses.extend(new_subclasses)
+                        else:
+                            # Add the whole progression if it doesn't exist
+                            patch.progressions.append(progression)
             else:
                 logging.warning(f"No progressions in mod: {mod.name}")
         return patch

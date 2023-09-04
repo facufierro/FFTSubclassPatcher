@@ -41,7 +41,7 @@ class Progression:
             f'  <attribute id="Name" type="LSString" value="{self.name}"/>\n'
             f'  <attribute id="TableUUID" type="guid" value="{self.table_uuid}"/>\n'
             f'  <attribute id="Level" type="uint8" value="{self.level}"/>\n'
-            f'  <attribute id=ProgressionType" type="uint8" value="{self.progression_type}"/>\n'
+            f'  <attribute id="ProgressionType" type="uint8" value="{self.progression_type}"/>\n'
             '  <children>\n'
             '    <node id="SubClasses">\n'
             '      <children>\n'
