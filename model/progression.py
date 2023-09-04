@@ -29,9 +29,9 @@ class Progression:
     def __str__(self):
         subclass_nodes = ''
         for subclass in self.subclasses:
-            # subclass_nodes += f'<!-- {subclass["name"]} -->\n'
+            subclass_nodes += f'<!-- {subclass["Name"]} -->\n'
             subclass_nodes += f'<node id="SubClass">\n'
-            subclass_nodes += f'  <attribute id="Object" type="guid" value="{subclass}"/>\n'
+            subclass_nodes += f'  <attribute id="Object" type="guid" value="{subclass["UUID"]}"/>\n'
             subclass_nodes += '</node>\n'
 
         return (

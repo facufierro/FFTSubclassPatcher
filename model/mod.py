@@ -13,6 +13,7 @@ class Mod:
         self.name = "FFTSubclassPatch"
         self.author = "fierrof"
         self.folder = "FFTSubclassPatch"
+        self.description = "A compatibility patch for subclasses in Baldur's Gate 3."
         self.progressions = []
 
         if meta_lsx_file_path and progressions_lsx_file_path:
@@ -21,44 +22,52 @@ class Mod:
             self.load_meta()
             self.load_progressions()
             logging.info(f"{self.name} Initialized with UUID {self.uuid}")
-            logging.debug(f"{self.meta_string()}")
+            # logging.debug(f"{self.meta_string()}")
 
     def load_meta(self):
-        mod_data = FileManager.load_nodes(self.meta_lsx_file_path, 'ModuleInfo', ['UUID', 'Name', 'Author', 'Folder'])
+        mod_data = FileManager.load_nodes(self.meta_lsx_file_path, 'ModuleInfo', ['UUID', 'Name', 'Author', 'Folder', 'Description'])
         logging.debug(f"Returned mod_data: {mod_data}")
 
         self.uuid = mod_data[0].get('UUID', self.uuid)
         self.name = mod_data[0].get('Name', self.name)
         self.author = mod_data[0].get('Author', self.author)
         self.folder = mod_data[0].get('Folder', self.folder)
+        self.description = mod_data[0].get('Description', self.description)
 
     def load_progressions(self):
-        if self.progressions_lsx_file_path:
-            try:
-                progressions_data = FileManager.load_nodes(
-                    self.progressions_lsx_file_path,
-                    "Progression",
-                    ["UUID", "Name", "TableUUID", "Level", "ProgressionType", "Boosts", "PassivesAdded", "Selectors"],
-                    child_node_name="SubClass",
-                    child_key_attr="Name",
-                    child_value_attr="UUID"
-                )
-                for progression_data in progressions_data:
-                    progression = Progression(
-                        uuid=progression_data.get("UUID"),
-                        name=progression_data.get("Name"),
-                        table_uuid=progression_data.get("TableUUID"),
-                        level=progression_data.get("Level"),
-                        progression_type=progression_data.get("ProgressionType"),
-                        boosts=progression_data.get("Boosts"),
-                        passives=progression_data.get("PassivesAdded"),
-                        selectors=progression_data.get("Selectors"),
-                        subclasses=progression_data.get("SubClass", {})
-                    )
-                    self.progressions.append(progression)
-            except Exception as e:
-                logging.error(f"An error occurred while loading progressions: {e}")
-                return []
+        def subclass_handler(node, node_data):
+            subclasses = []
+            for child_node in node.xpath(".//node[@id='SubClass']"):
+                uuid = FileManager.get_attribute(child_node, 'Object')
+                subclasses.append({'Name': 'CustomName', 'UUID': uuid})
+            node_data['SubClasses'] = subclasses
+
+        progressions_data = FileManager.load_nodes(
+            self.progressions_lsx_file_path,
+            "Progression",
+            ["UUID", "Name", "TableUUID", "Level", "ProgressionType", "Boosts", "PassivesAdded", "Selectors"],
+            child_handler=subclass_handler
+        )
+
+        self.progressions = []  # Clear existing progressions if any
+        for progression_data in progressions_data:
+            progression = Progression(
+                uuid=progression_data.get("UUID"),
+                name=progression_data.get("Name"),
+                table_uuid=progression_data.get("TableUUID"),
+                level=progression_data.get("Level"),
+                progression_type=progression_data.get("ProgressionType"),
+                boosts=progression_data.get("Boosts"),
+                passives=progression_data.get("PassivesAdded"),
+                selectors=progression_data.get("Selectors"),
+                subclasses=progression_data.get("SubClasses", [])
+            )
+            self.progressions.append(progression)
+
+        # Log the subclasses
+        for mod_progression in self.progressions:
+            for subclass in mod_progression.subclasses:
+                logging.debug(f"Subclass Name: {subclass['Name']}, UUID: {subclass['UUID']}")
 
     def meta_string(self) -> str:
         return (
@@ -72,7 +81,7 @@ class Mod:
             f'<node id="ModuleInfo">'
             f'<attribute id="Author" type="LSWString" value="{self.author}"/>'
             f'<attribute id="CharacterCreationLevelName" type="FixedString" value=""/>'
-            f'<attribute id="Description" type="LSWString" value="{self.folder}"/>'
+            f'<attribute id="Description" type="LSWString" value="{self.description}"/>'
             f'<attribute id="Folder" type="LSWString" value="{self.folder}"/>'
             f'<attribute id="GMTemplate" type="FixedString" value=""/>'
             f'<attribute id="LobbyLevelName" type="FixedString" value=""/>'
@@ -106,7 +115,7 @@ class Mod:
             f'</region>'
             f'</save>')
 
-    def progressions_string(self, patch) -> str:
+    def progressions_string(self) -> str:
         return (
             '<?xml version="1.0" encoding="UTF-8"?>\n'
             '<save>\n'
@@ -114,7 +123,7 @@ class Mod:
             '<region id="Progressions">\n'
             '<node id="root">\n'
             '<children>\n'
-            f'{"".join([str(prog) for prog in patch.progressions])}'
+            f'{"".join([str(prog) for prog in self.progressions])}'
             '</children>\n'
             '</node>\n'
             '</region>\n'

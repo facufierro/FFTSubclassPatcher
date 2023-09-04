@@ -70,7 +70,7 @@ class FileManager:
             return None
 
     @staticmethod
-    def load_nodes(lsx_file_path, node_name, attribute_list, child_node_name=None, child_key_attr=None, child_value_attr=None):
+    def load_nodes(lsx_file_path, node_name, attribute_list, child_handler=None):
         try:
             root = FileManager.parse_lsx(lsx_file_path)
             if root is None:
@@ -81,17 +81,8 @@ class FileManager:
             for node in root.xpath(f".//node[@id='{node_name}']"):
                 node_data = {attr: FileManager.get_attribute(node, attr) for attr in attribute_list}
 
-                if child_node_name and child_key_attr and child_value_attr:
-                    child_data = {}
-                    for child_node in node.xpath(f".//node[@id='{child_node_name}']"):
-                        child_key = FileManager.get_attribute(child_node, child_key_attr)
-                        child_value = FileManager.get_attribute(child_node, child_value_attr)
-                        if child_key and child_value:
-                            if child_key in child_data:
-                                child_data[child_key].add(child_value)
-                            else:
-                                child_data[child_key] = {child_value}
-                    node_data[child_node_name] = child_data
+                if child_handler:
+                    child_handler(node, node_data)
 
                 nodes_data.append(node_data)
 
