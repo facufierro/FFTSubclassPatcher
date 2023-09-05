@@ -5,11 +5,15 @@ from PyQt5.QtGui import QStandardItemModel, QStandardItem
 from PyQt5.QtWidgets import QFileDialog, QGridLayout, QListView, QLineEdit, QPushButton, QToolButton, QAbstractItemView, QMessageBox, QProgressBar
 import logging  # Import logging for error handling
 from controller.subclass_patcher_controller import SubclassPatcherController  # Import the controller
+from utils.file_manager import FileManager  # Import the file manager
+from utils.settings_manager import SettingsManager  # Import the settings manager
 
 
 class SubclassPatcherUI(object):
     def __init__(self):
         self.controller = SubclassPatcherController(self)
+        # Connect the aboutToQuit signal to clean_folder
+        QCoreApplication.instance().aboutToQuit.connect(lambda: FileManager.clean_folder(SettingsManager.TEMP_DIRECTORY))
 
     def setupUi(self, SubclassPatcherUI):
         try:
@@ -137,11 +141,20 @@ class SubclassPatcherUI(object):
         # Use the controller to get the full paths of selected mods
         selected_mod_paths = self.controller.get_mod_full_paths(selected_mod_indices)
 
-        # Initiate the mod patching process
-        self.controller.create_mod_patch(selected_mod_paths)
+        if self.controller.create_mod_patch(selected_mod_paths):  # Assuming create_mod_patch returns a boolean indicating success
 
-        # After patching is done, ask the controller to open the output folder
-        self.controller.open_output_folder()
+            msg = QMessageBox()
+            msg.setIcon(QMessageBox.Information)
+            msg.setText("Patch created successfully, do you want to close the app?")
+            msg.setWindowTitle("Patch Created")
+            msg.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
+            result = msg.exec_()
+
+            if result == QMessageBox.Yes:
+                self.controller.open_output_folder()
+                QCoreApplication.instance().quit()
+            else:
+                self.controller.open_output_folder()
 
     def get_selected_mod_indices(self):
         # Fetch the selected mod indices from lstMods
