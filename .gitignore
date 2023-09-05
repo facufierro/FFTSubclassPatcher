@@ -6,3 +6,4 @@ output/
 temp/
 **/__pycache__/
 settings.json
+main.spec
