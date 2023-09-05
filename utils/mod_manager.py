@@ -138,12 +138,8 @@ class ModManager:
     @staticmethod
     def pack_mod(mod_folder_path):
         try:
-            # Reload settings to ensure DIVINE_DIRECTORY is up-to-date
-            SettingsManager._instance.load_settings()
 
-            if SettingsManager.DIVINE_DIRECTORY is None:
-                # logging.error("DIVINE_DIRECTORY is not set.")
-                return False
+            divine_directory = SettingsManager._instance.settings.get('DIVINE_DIRECTORY', None)
 
             # Create a .pak file name based on the mod folder name
             pak_file_name = "FFTSubclassPatch.pak"
@@ -152,7 +148,7 @@ class ModManager:
             pak_file_path = os.path.join(SettingsManager.OUTPUT_DIRECTORY, pak_file_name)
 
             command = [
-                SettingsManager.DIVINE_DIRECTORY,
+                divine_directory,
                 "-g",
                 "bg3",  # Replace this with the appropriate game if needed
                 "--action",
