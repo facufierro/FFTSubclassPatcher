@@ -10,6 +10,18 @@ from controller.subclass_patcher_controller import SubclassPatcherController  # 
 class SubclassPatcherUI(object):
     def __init__(self):
         self.controller = SubclassPatcherController(self)
+        divine_path = self.controller.fetch_divine_directory()
+        if not divine_path:
+            self.show_divine_directory_prompt()
+
+    def show_divine_directory_prompt(self):
+        msg = QMessageBox()
+        msg.setIcon(QMessageBox.Information)
+        msg.setText("Choose your divine.exe file directory.")
+        msg.setWindowTitle("Divine Directory Required")
+        msg.setStandardButtons(QMessageBox.Ok)
+        msg.exec_()  # This will block until the user clicks 'OK'
+        self.browse_divine_directory()
 
     def setupUi(self, SubclassPatcherUI):
         try:
@@ -41,6 +53,7 @@ class SubclassPatcherUI(object):
             # Initialize line edit for Divine path
             self.txtDivinePath = QLineEdit(SubclassPatcherUI)
             self.txtDivinePath.setObjectName("txtDivinePath")
+            self.txtDivinePath.setPlaceholderText("Choose divine.exe path")  # Set placeholder text
             self.gridLayout.addWidget(self.txtDivinePath, 0, 0, 1, 1)
 
             # Fetch divine directory from the controller and set it to txtDivinePath
@@ -70,8 +83,12 @@ class SubclassPatcherUI(object):
             self.retranslateUi(SubclassPatcherUI)
             QMetaObject.connectSlotsByName(SubclassPatcherUI)
 
+            self.controller.check_and_update_create_patch_button()
         except Exception as e:
             logging.error(f"Error setting up UI: {e}")  # Log the error if something goes wrong
+
+    def enable_create_patch_button(self, enable: bool):
+        self.btnCreatePatch.setEnabled(enable)
 
     def retranslateUi(self, SubclassPatcherUI):
         _translate = QCoreApplication.translate
@@ -91,15 +108,13 @@ class SubclassPatcherUI(object):
             options=options
         )
 
-        if file_path:  # If a file is selected
-            # Check if the selected file is actually 'divine.exe'
-            if file_path.lower().endswith('divine.exe'):
-                self.txtDivinePath.setText(file_path)  # Set the file path in txtDivinePath
-                # Use the Controller to save the path to settings
-                self.controller.save_divine_directory(file_path)
-            else:
-                # Show a dialog to inform the user that they didn't select 'divine.exe'
-                QMessageBox.critical(None, 'Invalid File', 'Invalid file selected. Please select divine.exe.')
+        if file_path.lower().endswith('divine.exe'):
+            self.txtDivinePath.setText(file_path)
+            self.controller.save_divine_directory(file_path)
+            self.controller.check_and_update_create_patch_button()
+        else:
+            # Show a dialog to inform the user that they didn't select 'divine.exe'
+            QMessageBox.critical(None, 'Invalid File', 'Invalid file selected. Please select divine.exe.')
 
     def update_mod_list(self):
         self.model.clear()
@@ -127,5 +142,3 @@ class SubclassPatcherUI(object):
         selected_indexes = self.lstMods.selectionModel().selectedIndexes()
         selected_mod_indices = [index.row() for index in selected_indexes]
         return selected_mod_indices
-
-

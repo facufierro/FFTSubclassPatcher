@@ -50,6 +50,13 @@ class SubclassPatcherController:
         # Load all mods from TEMP_DIRECTORY
         return ModManager.get_all_mods_from_files()
 
+    def check_and_update_create_patch_button(self):
+        divine_path = self.fetch_divine_directory()
+        if divine_path:
+            self.view.enable_create_patch_button(True)
+        else:
+            self.view.enable_create_patch_button(False)
+
     def create_mod_patch(self, selected_mod_paths: List[str]) -> bool:
         # Create a mod patch using the selected mods
 

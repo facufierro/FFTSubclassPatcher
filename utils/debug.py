@@ -23,7 +23,7 @@ def setup_logger():
     if not os.path.exists(log_dir):
         os.makedirs(log_dir)
     logger = logging.getLogger()
-    logger.setLevel(logging.DEBUG)
+    logger.setLevel(logging.INFO)
     # Clear existing handlers
     if logger.hasHandlers():
         logger.handlers.clear()
