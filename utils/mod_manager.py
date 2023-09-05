@@ -101,7 +101,7 @@ class ModManager:
             return False
 
     @staticmethod
-    def combine_mods(mods):
+    def combine_progressions(mods):
         patch = Mod()
         for mod in mods:
             if mod.progressions is not None:
