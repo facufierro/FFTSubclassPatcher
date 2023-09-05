@@ -1,4 +1,3 @@
-# utils/settings_manager.py
 import os
 import json
 import logging
@@ -17,6 +16,9 @@ class SettingsManager:
             cls.TEMP_DIRECTORY = os.path.join(cls.BASE_DIRECTORY, "temp")
             cls.OUTPUT_DIRECTORY = os.path.join(cls.BASE_DIRECTORY, "output")
             cls.MODS_DIRECTORY = os.path.join(os.getenv('LOCALAPPDATA'), 'Larian Studios', 'Baldur\'s Gate 3', 'Mods')
+
+            # Initialize settings as an empty dictionary
+            cls._instance.settings = {}
 
             try:
                 # Load settings from JSON
@@ -46,7 +48,6 @@ class SettingsManager:
     def load_settings(self):
         # Load settings from JSON file
         if not os.path.exists(self._settings_path):
-            self.settings = {}
             self.save_settings()
         else:
             try:
@@ -63,15 +64,10 @@ class SettingsManager:
         except Exception as e:
             logging.error(f"Error writing settings file: {e}")
 
-    # Sets the DIVINE_DIRECTORY and saves it to settings.
-
     def set_divine_directory(self, path):
         self.DIVINE_DIRECTORY = path
         self.set_setting('DIVINE_DIRECTORY', path)
 
-    # Sets a setting and saves it to disk.
-
     def set_setting(self, key, value):
         self.settings[key] = value
         self.save_settings()
-    # Gets the DIVINE_DIRECTORY from settings.

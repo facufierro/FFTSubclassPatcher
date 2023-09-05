@@ -138,6 +138,12 @@ class ModManager:
     @staticmethod
     def pack_mod(mod_folder_path):
         try:
+            # Reload settings to ensure DIVINE_DIRECTORY is up-to-date
+            SettingsManager._instance.load_settings()
+
+            if SettingsManager.DIVINE_DIRECTORY is None:
+                # logging.error("DIVINE_DIRECTORY is not set.")
+                return False
 
             # Create a .pak file name based on the mod folder name
             pak_file_name = "FFTSubclassPatch.pak"
@@ -163,3 +169,4 @@ class ModManager:
         except Exception as e:
             logging.error(
                 f"Failed to pack {mod_folder_path} to {pak_file_path}: {e}")
+            return False

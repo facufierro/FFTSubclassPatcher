@@ -142,19 +142,7 @@ class SubclassPatcherUI(object):
         selected_mod_paths = self.controller.get_mod_full_paths(selected_mod_indices)
 
         if self.controller.create_mod_patch(selected_mod_paths):  # Assuming create_mod_patch returns a boolean indicating success
-
-            msg = QMessageBox()
-            msg.setIcon(QMessageBox.Information)
-            msg.setText("Patch created successfully, do you want to close the app?")
-            msg.setWindowTitle("Patch Created")
-            msg.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
-            result = msg.exec_()
-
-            if result == QMessageBox.Yes:
-                self.controller.open_output_folder()
-                QCoreApplication.instance().quit()
-            else:
-                self.controller.open_output_folder()
+            self.controller.open_output_folder()
 
     def get_selected_mod_indices(self):
         # Fetch the selected mod indices from lstMods
