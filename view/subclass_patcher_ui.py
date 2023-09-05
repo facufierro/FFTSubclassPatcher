@@ -10,18 +10,6 @@ from controller.subclass_patcher_controller import SubclassPatcherController  # 
 class SubclassPatcherUI(object):
     def __init__(self):
         self.controller = SubclassPatcherController(self)
-        divine_path = self.controller.fetch_divine_directory()
-        if not divine_path:
-            self.show_divine_directory_prompt()
-
-    def show_divine_directory_prompt(self):
-        msg = QMessageBox()
-        msg.setIcon(QMessageBox.Information)
-        msg.setText("Choose your divine.exe file directory.")
-        msg.setWindowTitle("Divine Directory Required")
-        msg.setStandardButtons(QMessageBox.Ok)
-        msg.exec_()  # This will block until the user clicks 'OK'
-        self.browse_divine_directory()
 
     def setupUi(self, SubclassPatcherUI):
         try:
@@ -83,9 +71,24 @@ class SubclassPatcherUI(object):
             self.retranslateUi(SubclassPatcherUI)
             QMetaObject.connectSlotsByName(SubclassPatcherUI)
 
+            # Now that all UI elements are initialized, check for DIVINE_DIRECTORY
+            divine_path = self.controller.fetch_divine_directory()
+            if not divine_path:
+                self.show_divine_directory_prompt()
+
+            # Update the Create Patch button state
             self.controller.check_and_update_create_patch_button()
         except Exception as e:
             logging.error(f"Error setting up UI: {e}")  # Log the error if something goes wrong
+
+    def show_divine_directory_prompt(self):
+        msg = QMessageBox()
+        msg.setIcon(QMessageBox.Information)
+        msg.setText("Choose your divine.exe file directory.")
+        msg.setWindowTitle("Divine Directory Required")
+        msg.setStandardButtons(QMessageBox.Ok)
+        msg.exec_()  # This will block until the user clicks 'OK'
+        self.browse_divine_directory()
 
     def enable_create_patch_button(self, enable: bool):
         self.btnCreatePatch.setEnabled(enable)
@@ -136,6 +139,9 @@ class SubclassPatcherUI(object):
 
         # Initiate the mod patching process
         self.controller.create_mod_patch(selected_mod_paths)
+
+        # After patching is done, ask the controller to open the output folder
+        self.controller.open_output_folder()
 
     def get_selected_mod_indices(self):
         # Fetch the selected mod indices from lstMods

@@ -1,6 +1,7 @@
 # controller/subclass_patcher_controller.py
 import os
 import logging
+import subprocess
 from typing import List, Optional
 from utils.settings_manager import SettingsManager
 from model.mod import Mod
@@ -56,6 +57,9 @@ class SubclassPatcherController:
             self.view.enable_create_patch_button(True)
         else:
             self.view.enable_create_patch_button(False)
+
+    def open_output_folder(self):
+        subprocess.run(f'explorer {SettingsManager.OUTPUT_DIRECTORY}')
 
     def create_mod_patch(self, selected_mod_paths: List[str]) -> bool:
         # Create a mod patch using the selected mods
